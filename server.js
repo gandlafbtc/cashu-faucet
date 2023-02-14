@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 app.get('/charge', async (req, res) => {
     const token = req.query.token
     const message  = await faucet.charge(token)
-    console.log("all Tokens:", getEncodedProofs(balance ,[{url:process.env.MINT_URL, keysets: [...new Set(faucet.currentToken.map(t=>t.id))]}]))
+    // console.log("all Tokens:", getEncodedProofs(balance ,[{url:process.env.MINT_URL, keysets: [...new Set(faucet.currentToken.map(t=>t.id))]}]))
     res.send({message})
   })
 
