@@ -1,4 +1,4 @@
-# Cashu faucet
+# Cashu faucet 🥜🚰
 
 A faucet that you can charge up with Cashu tokens and then releases fractions of that token slooowlyyy.
 
@@ -13,7 +13,7 @@ npm i
 
 ## How to use
 
-Setting up a cashu faucet is a easy 3 step process:
+Setting up a Cashu faucet is a easy 3 step process:
 
 ### 1. Configure
 
