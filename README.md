@@ -1,5 +1,8 @@
 # Cashu faucet 🥜🚰
 
+⚠️ Early development, use at own risk
+
+
 A faucet that you can charge up with Cashu tokens and then releases fractions of that token slooowlyyy.
 
 
