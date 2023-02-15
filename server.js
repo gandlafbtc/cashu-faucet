@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const { CashuMint, CashuWallet, getEncodedProofs } = require("@gandlaf21/cashu-ts")
-const { Faucet } = require ("@gandlaf21/cashu-tools")
+const { Faucet, utils } = require ("@gandlaf21/cashu-tools")
 const rateLimit = require('express-rate-limit')
 const cors = require('cors');
 
@@ -30,10 +30,14 @@ app.get('/', (req, res) => {
   res.send({token: responseString})
 })
 
+app.get('/balance', async (req, res) => {
+  res.send({remaining: utils.getAmountForTokenSet(faucet.balance)})
+})
+
 app.get('/charge', async (req, res) => {
     const token = req.query.token
     const message  = await faucet.charge(token)
-    // console.log("all Tokens:", getEncodedProofs(balance ,[{url:process.env.MINT_URL, keysets: [...new Set(faucet.currentToken.map(t=>t.id))]}]))
+    console.log("all Tokens: ", getEncodedProofs(faucet.balance ,[{url:process.env.MINT_URL, keysets: [...new Set(faucet.currentToken.map(t=>t.id))]}]))
     res.send({message})
   })
 
