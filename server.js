@@ -55,7 +55,11 @@ app.listen(port, async () => {
 
 function writeTokensToFile() {
   try {
-    const data = JSON.stringify({tokens: faucet.balance, mints: faucet.wallets.map(w=> { return {mint: w.mint.mintUrl, keysets: w.keysets}})})
+    const data = JSON.stringify({
+      tokens: faucet.balance, mints: faucet.wallets.map(w => {
+        return { mint: w.mint.mintUrl, keysets: w.keysets }
+      })
+    })
     fs.writeFile('tokens.json', data, err => {
       if (err) {
         throw err
