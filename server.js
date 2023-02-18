@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-const { CashuMint, CashuWallet, getEncodedProofs } = require("@gandlaf21/cashu-ts")
-const { Faucet, utils } = require ("@gandlaf21/cashu-tools")
+const { getEncodedProofs } = require("@gandlaf21/cashu-ts")
+const { AnarchoFaucet , utils } = require ("@gandlaf21/cashu-tools")
 const rateLimit = require('express-rate-limit')
 const cors = require('cors');
 
@@ -23,29 +23,26 @@ app.use(cors());
 
 app.get('/', (req, res) => {
     let responseString ="Token has already been claimed! waiting for next token..."
-    if(faucet.currentToken.length>0){
+    if(faucet.currentToken){
          responseString = 
-        getEncodedProofs(faucet.currentToken ,[{url:process.env.MINT_URL, keysets: [...new Set(faucet.currentToken.map(t=>t.id))]}])
+        getEncodedProofs(faucet.currentToken.proofs ,faucet.currentToken.mints)
     }
   res.send({token: responseString})
 })
 
 app.get('/balance', async (req, res) => {
-  res.send({remaining: utils.getAmountForTokenSet(faucet.balance)})
+  res.send({remaining: utils.getAmountForTokenSet(faucet.balance),
+            mintCount: faucet.wallets.length})
 })
 
 app.get('/charge', async (req, res) => {
     const token = req.query.token
     const message  = await faucet.charge(token)
-    console.log("all Tokens: ", getEncodedProofs(faucet.balance ,[{url:process.env.MINT_URL, keysets: [...new Set(faucet.currentToken.map(t=>t.id))]}]))
     res.send({message})
   })
 
 app.listen(port, async () => {
-    const cashuMint = new CashuMint(process.env.MINT_URL)
-    const keys  = await cashuMint.getKeys()
-    const cashuWallet = new CashuWallet(keys, cashuMint)
-    faucet = new Faucet(cashuWallet, process.env.FAUCET_INTERVAL, process.env.SATS_PER_INTERVAL)
+    faucet = new AnarchoFaucet(process.env.FAUCET_INTERVAL, process.env.SATS_PER_INTERVAL)
     await faucet.start()
     console.log(`Example app listening on port ${port}`)
 })

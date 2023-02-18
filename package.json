@@ -10,7 +10,7 @@
   "author": "gandlaf21",
   "license": "ISC",
   "dependencies": {
-    "@gandlaf21/cashu-tools": "^0.1.4",
+    "@gandlaf21/cashu-tools": "^0.1.5",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
