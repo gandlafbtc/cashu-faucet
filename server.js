@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-const { getEncodedProofs } = require("@gandlaf21/cashu-ts")
-const { AnarchoFaucet, utils } = require("@gandlaf21/cashu-tools")
+const { getEncodedToken } = require("@cashu/cashu-ts")
+const { Faucet, utils } = require("@gandlaf21/cashu-tools")
 const rateLimit = require('express-rate-limit')
 const cors = require('cors');
 const fs = require('fs')
@@ -26,40 +26,35 @@ app.get('/', (req, res) => {
   let responseString = "Token has already been claimed! waiting for next token..."
   if (faucet.currentToken) {
     responseString =
-      getEncodedProofs(faucet.currentToken.proofs, faucet.currentToken.mints)
+      getEncodedToken(faucet.currentToken)
   }
   res.send({ token: responseString })
 })
 
 app.get('/balance', async (req, res) => {
   res.send({
-    remaining: utils.getAmountForTokenSet(faucet.balance),
+    remaining: utils.getAmountForTokenSet(faucet.allTokens?.token?.map(t => t.proofs)?.flat() ?? []),
     mintCount: faucet.wallets.length
   })
 })
 
 app.get('/charge', async (req, res) => {
   const token = req.query.token
-  const message = await faucet.charge(token)
+  let message = 'charging faucet failed'
+  try {
+    message = await faucet.charge(token)
+  } catch (error) {
+    message = message + ': ' + error
+  }
   res.send({ message })
 })
-
-app.listen(port, async () => {
-  faucet = new AnarchoFaucet(process.env.FAUCET_INTERVAL, process.env.SATS_PER_INTERVAL)
-  await faucet.start()
-  setInterval(writeTokensToFile, 10000)
-  console.log(`Example app listening on port ${port}`)
-})
-
-
 
 function writeTokensToFile() {
   try {
     const data = JSON.stringify({
-      tokens: faucet.balance, mints: faucet.wallets.map(w => {
-        return { mint: w.mint.mintUrl, keysets: w.keysets }
-      })
-    })
+      tokens: faucet.allTokens
+    }
+    )
     fs.writeFile('tokens.json', data, err => {
       if (err) {
         throw err
@@ -69,4 +64,19 @@ function writeTokensToFile() {
   } catch (error) {
     console.log(error)
   }
+}
+
+app.listen(port, () => {
+  const whitelist = getWhitelist()
+  faucet = new Faucet(process.env.FAUCET_INTERVAL, process.env.SATS_PER_INTERVAL, whitelist)
+  faucet.start()
+  setInterval(writeTokensToFile, 10000)
+  console.log(`Faucet listening on port ${port}`)
+})
+
+function getWhitelist() {
+  if (!process.env.MINT_WHITELIST) {
+    return []
+  }
+  return process.env.MINT_WHITELIST.split(",");
 }
