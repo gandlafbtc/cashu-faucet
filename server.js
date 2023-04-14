@@ -10,6 +10,11 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT
 
+process.on('uncaughtException', function (err) {
+  console.error(err);
+  console.log("Node NOT Exiting...");
+});
+
 let faucet
 
 const limiter = rateLimit({
